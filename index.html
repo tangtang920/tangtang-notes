@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>糖糖笔记</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <header class="brand"><span class="logo">▤</span><div>糖糖笔记<small>留住每一个灵感</small></div></header>
+    <button id="create" class="primary">＋ 新建笔记</button>
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="搜索笔记" aria-label="搜索笔记"></label>
+    <div class="list-heading"><span>全部笔记</span><span id="count">0</span></div>
+    <nav id="list" aria-label="笔记列表"></nav>
+    <footer class="sidebar-footer"><span class="dot"></span> 保存在此浏览器 <span>LOCAL</span></footer>
+  </aside>
+  <main>
+    <div class="toolbar"><span class="breadcrumb">我的笔记 <span>/</span> <span id="crumb">未命名笔记</span></span><div><span id="status" role="status">已保存</span><button id="delete" class="icon-button" aria-label="删除当前笔记">删除</button></div></div>
+    <section id="editor" class="editor">
+      <div class="eyebrow">自由记录 · 慢慢整理</div>
+      <input id="title" class="title" placeholder="未命名笔记" aria-label="笔记标题" maxlength="200">
+      <div class="metadata"><span id="date"></span><span>·</span><span id="words">0 字</span></div>
+      <div class="divider"></div>
+      <textarea id="content" placeholder="从这里开始，写下你的想法…" aria-label="笔记内容"></textarea>
+    </section>
+    <section id="empty" hidden><div class="empty-icon">▤</div><h1>给想法一个栖息地</h1><p>点击「新建笔记」，开始你的第一篇记录。</p></section>
+    <footer class="main-footer"><span>一点一滴，皆有意义。</span><span>糖糖笔记</span></footer>
+  </main>
+  <dialog id="confirm"><h2>删除这篇笔记？</h2><p>删除后无法恢复。</p><form method="dialog"><button value="cancel">取消</button><button value="delete" class="danger">删除笔记</button></form></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
