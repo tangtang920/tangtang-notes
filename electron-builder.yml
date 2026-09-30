@@ -1,0 +1,23 @@
+appId: com.tangtang.notes
+productName: 糖糖笔记
+directories:
+  output: dist
+files:
+  - out/**/*
+  - package.json
+asar: true
+artifactName: tangtang-notes-${version}-${os}-${arch}.${ext}
+mac:
+  target: dmg
+  category: public.app-category.productivity
+  identity: null
+win:
+  target: nsis
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+linux:
+  target: AppImage
+  category: Utility
+  executableName: tangtang-notes
