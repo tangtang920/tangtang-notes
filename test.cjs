@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(__dirname + '/app.js', 'utf8');
-function boot(saved, failWrite=false) {
+function boot(saved, failWrite=false, theme='light') {
   class Element {
     constructor() { this.value=''; this.children=[]; this.listeners={}; this.hidden=false; }
     append(...nodes) { this.children.push(...nodes); }
@@ -14,11 +14,11 @@ function boot(saved, failWrite=false) {
     showModal() { this.open=true; }
     fire(name) { this.listeners[name]?.(); }
   }
-  const elements = Object.fromEntries(['create','search','count','list','title','content','status','crumb','date','words','editor','empty','delete','confirm'].map(id=>[id,new Element()]));
+  const elements = Object.fromEntries(['theme','create','search','count','list','title','content','status','crumb','date','words','editor','empty','delete','confirm'].map(id=>[id,new Element()]));
   let data=saved, id=0;
-  const context={document:{getElementById:id=>elements[id],createElement:()=>new Element()},localStorage:{getItem:()=>data??null,setItem:(key,value)=>{if(failWrite)throw Error('Quota');data=value;}},crypto:{randomUUID:()=>String(++id)},Date,console};
+  const context={document:{documentElement:{dataset:{theme}},getElementById:id=>elements[id],createElement:()=>new Element()},localStorage:{getItem:key=>key==='tangtang-theme-v1'?theme:data??null,setItem:(key,value)=>{if(failWrite)throw Error('Quota');if(key==='tangtang-theme-v1')theme=value;else data=value;}},crypto:{randomUUID:()=>String(++id)},Date,console};
   vm.runInNewContext(source,context);
-  return {e:elements,data:()=>data,edit:(field,value)=>{elements[field].value=value;elements[field].fire('input');},remove:()=>{elements.delete.onclick();elements.confirm.returnValue='delete';elements.confirm.fire('close');}};
+  return {e:elements,data:()=>data,theme:()=>theme,root:context.document.documentElement,edit:(field,value)=>{elements[field].value=value;elements[field].fire('input');},remove:()=>{elements.delete.onclick();elements.confirm.returnValue='delete';elements.confirm.fire('close');}};
 }
 test('新增、编辑、字数和刷新恢复',()=>{
   const app=boot(); app.e.create.onclick(); app.edit('title','我的笔记'); app.edit('content','你好\n A😀');
@@ -45,4 +45,16 @@ test('标签作为文本显示，空标题有默认名称',()=>{
 test('存储损坏不覆盖原始数据；写入失败显示提示',()=>{
   const broken=boot('{broken');broken.e.create.onclick();assert.equal(broken.data(),'{broken');assert.match(broken.e.status.textContent,/保存失败/);
   const failed=boot(null,true);assert.match(failed.e.status.textContent,/保存失败/);failed.edit('content','仍可编辑');assert.equal(failed.e.content.value,'仍可编辑');
+});
+
+test('主题切换立即生效并独立保存，刷新恢复深色',()=>{
+  const app=boot(); const notes=app.data();
+  assert.equal(app.e.theme.value,'light');
+  app.e.theme.value='dark'; app.e.theme.fire('change');
+  assert.equal(app.root.dataset.theme,'dark'); assert.equal(app.theme(),'dark'); assert.equal(app.data(),notes);
+  const restored=boot(notes,false,app.theme()); assert.equal(restored.e.theme.value,'dark');
+  restored.e.theme.value='light'; restored.e.theme.fire('change'); assert.equal(restored.root.dataset.theme,'light'); assert.equal(restored.theme(),'light');
+});
+test('主题存储失败时仍能切换',()=>{
+  const app=boot(null,true); app.e.theme.value='dark'; app.e.theme.fire('change'); assert.equal(app.root.dataset.theme,'dark');
 });

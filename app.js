@@ -2,6 +2,13 @@
   'use strict';
   const KEY = 'tangtang-notes-v1';
   const $ = id => document.getElementById(id);
+  const themeKey = 'tangtang-theme-v1';
+  $('theme').value = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+  $('theme').addEventListener('change', () => {
+    const theme = $('theme').value;
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem(themeKey, theme); } catch {}
+  });
   const date = timestamp => new Date(timestamp).toLocaleDateString('zh-CN', {year:'numeric',month:'long',day:'numeric'});
   let notes = [], active = null, storageFailed = false;
   try {
